@@ -201,7 +201,7 @@ public abstract class FileInputFormat<K, V> implements InputFormat<K, V> {
     // get tokens for all the required FileSystems..
     TokenCache.obtainTokensForNamenodes(job.getCredentials(), dirs, job);
     
-    // Whether we need to recursive look into the directory structure
+    // Whether we need to recursive（递归） look into the directory structure
     boolean recursive = job.getBoolean(INPUT_DIR_RECURSIVE, false);
     
     List<FileStatus> result = new ArrayList<FileStatus>();
@@ -210,11 +210,14 @@ public abstract class FileInputFormat<K, V> implements InputFormat<K, V> {
     // creates a MultiPathFilter with the hiddenFileFilter and the
     // user provided one (if any).
     List<PathFilter> filters = new ArrayList<PathFilter>();
+
+    //hiddenFileFilter会过滤掉 “.”，“_”开头的文件
     filters.add(hiddenFileFilter);
     PathFilter jobFilter = getInputPathFilter(job);
     if (jobFilter != null) {
       filters.add(jobFilter);
     }
+
     PathFilter inputFilter = new MultiPathFilter(filters);
 
     for (Path p: dirs) {
@@ -267,6 +270,7 @@ public abstract class FileInputFormat<K, V> implements InputFormat<K, V> {
    * they're too big.*/ 
   public InputSplit[] getSplits(JobConf job, int numSplits)
     throws IOException {
+    //保存文件状态
     FileStatus[] files = listStatus(job);
     
     // Save the number of input files for metrics/loadgen
@@ -279,6 +283,7 @@ public abstract class FileInputFormat<K, V> implements InputFormat<K, V> {
       totalSize += file.getLen();
     }
 
+    //根据分片个数计算 目标分片大小
     long goalSize = totalSize / (numSplits == 0 ? 1 : numSplits);
     long minSize = Math.max(job.getLong(org.apache.hadoop.mapreduce.lib.input.
       FileInputFormat.SPLIT_MINSIZE, 1), minSplitSize);
