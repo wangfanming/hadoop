@@ -2575,6 +2575,7 @@ public abstract class FileSystem extends Configured implements Closeable {
     }
     Class<? extends FileSystem> clazz = null;
     if (conf != null) {
+        //根据类名，反射获取相应的对象
       clazz = (Class<? extends FileSystem>) conf.getClass("fs." + scheme + ".impl", null);
     }
     if (clazz == null) {

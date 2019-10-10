@@ -659,6 +659,7 @@ public class Configuration implements Iterable<Map.Entry<String,String>>,
   {
     classLoader = Thread.currentThread().getContextClassLoader();
     if (classLoader == null) {
+        //Configuration对象来自于driver的广播变量
       classLoader = Configuration.class.getClassLoader();
     }
   }
@@ -2010,6 +2011,7 @@ public class Configuration implements Iterable<Map.Entry<String,String>>,
      
     if (clazz == null) {
       try {
+          //使用driver端广播过来的类加载器，反射生成相应的对象
         clazz = Class.forName(name, true, classLoader);
       } catch (ClassNotFoundException e) {
         // Leave a marker that the class isn't found

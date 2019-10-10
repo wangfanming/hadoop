@@ -104,6 +104,7 @@ public class LineRecordReader implements RecordReader<LongWritable, Text> {
     codec = compressionCodecs.getCodec(file);
 
     // open the file and seek to the start of the split
+      // 获取当前文件系统类型
     final FileSystem fs = file.getFileSystem(job);
     fileIn = fs.open(file);
     if (isCompressedInput()) {
