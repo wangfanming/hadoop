@@ -205,12 +205,14 @@ public abstract class FileInputFormat<K, V> implements InputFormat<K, V> {
     // get tokens for all the required FileSystems..
     TokenCache.obtainTokensForNamenodes(job.getCredentials(), dirs, job);
     
-    // Whether we need to recursive look into the directory structure
+    // Whether we need to recursive（递归） look into the directory structure
     boolean recursive = job.getBoolean(INPUT_DIR_RECURSIVE, false);
 
     // creates a MultiPathFilter with the hiddenFileFilter and the
     // user provided one (if any).
     List<PathFilter> filters = new ArrayList<PathFilter>();
+
+    //hiddenFileFilter：过滤掉“.”,“_”开头的文件
     filters.add(hiddenFileFilter);
     PathFilter jobFilter = getInputPathFilter(job);
     if (jobFilter != null) {
@@ -219,6 +221,8 @@ public abstract class FileInputFormat<K, V> implements InputFormat<K, V> {
     PathFilter inputFilter = new MultiPathFilter(filters);
 
     FileStatus[] result;
+    //根据“mapreduce.input.fileinputformat.list-status.num-threads”的配置决定是否使用多线程的方式获取文件状态
+    //没有指定就采用默认值 1 （单线程）
     int numThreads = job
         .getInt(
             org.apache.hadoop.mapreduce.lib.input.FileInputFormat.LIST_STATUS_NUM_THREADS,
@@ -231,7 +235,6 @@ public abstract class FileInputFormat<K, V> implements InputFormat<K, V> {
     } else {
       Iterable<FileStatus> locatedFiles = null;
       try {
-        
         LocatedFileStatusFetcher locatedFileStatusFetcher = new LocatedFileStatusFetcher(
             job, dirs, recursive, inputFilter, false);
         locatedFiles = locatedFileStatusFetcher.getFileStatuses();
